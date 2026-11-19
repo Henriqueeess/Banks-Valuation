@@ -49,7 +49,7 @@ pytest
 ## Roadmap
 - [x] Repository restructure, Parquet layers, tests
 - [x] Fix: net income double counting; Ke from realized index returns
-- [ ] Fix: Bradesco/BB/Santander data gap after 2019 (diagnose with `src.diagnose`)
+- [x] Fix: Bradesco/BB/Santander gap after 2019 (equity moved from account 2.08 to 2.07 in 2020)
 - [ ] Sourced Ke (NTN-B / Damodaran), beta comparison
 - [ ] Excess Return valuation, value per share, upside/downside
 - [ ] Justified vs. market P/B, scenarios, Ke × g sensitivity
