@@ -1,45 +1,59 @@
-# Brazilian Banking Sector Valuation — Excess Return Model
+# Brazilian Banks Valuation — Excess Return Model (v2, work in progress)
 
-This project applies the Excess Return (Residual Income) valuation framework to analyze value creation in major Brazilian banks:
+> **Not investment advice.** Academic and portfolio project.
 
-- Itaú Unibanco
-- Bradesco
-- Banco do Brasil
-- Santander Brasil
+Valuation of Brazil's four largest listed banks — Itaú Unibanco (ITUB4), Bradesco (BBDC4), Banco do Brasil (BBAS3) and Santander Brasil (SANB11) — over 2010–2025.
 
-## Motivation
+## Problem
+A high ROE doesn't make a bank cheap or expensive — the spread over its cost of equity does. Version 1 measured the historical ROE − Ke spread. Version 2 turns it into a full valuation: intrinsic value per share vs. market price, justified vs. market P/B, scenarios and sensitivity.
 
-Banks exhibit characteristics that make traditional DCF models less suitable, such as:
-- Debt as an operating input
-- Regulatory capital requirements
-- Implicit reinvestment dynamics
+## Why not DCF?
+For banks, debt is an operating input, regulatory capital constrains reinvestment and free cash flow is hard to define. Equity-based models (Excess Return / Residual Income) are the standard for financial institutions.
 
-Therefore, ROE versus cost of equity is a widely used valuation approach for financial institutions.
+## Data
+| Data | Source |
+|---|---|
+| Net income, equity (DFP) | CVM Open Data |
+| Selic, IPCA | BCB SGS (series 432, 433) |
+| Prices, IBOV | Yahoo Finance (`yfinance`) |
+| ERP, country risk, sector betas | Damodaran *(week 3)* |
+| NII, provisions, loan book | BCB IF.data *(week 6)* |
 
-## Methodology
+## Method
+- **ROE** = net income attributable to controlling shareholders / beginning-of-year controlling equity.
+- **Ke (CAPM, ex-ante)** = Rf + β × ERP. β from weekly returns vs. IBOV (5-year window, Blume-adjusted). Inputs in `src/config.py` are **provisional** until week 3.
+- **Excess Return model, justified P/B, scenarios, ROE decomposition** — coming (see roadmap).
 
-- ROE computed from official financial statements (CVM)
-- Cost of equity estimated via CAPM
-- Risk-free rate based on SELIC
-- Market return based on IBOV
-- Analysis period: 2010–2020
+## Project structure
+```
+src/
+  config.py      banks, period, paths, assumptions
+  fetch.py       raw data  -> data/raw/*.parquet
+  transform.py   CVM cleaning -> data/processed/fundamentals.parquet
+  model.py       beta, Ke, spread -> data/processed/ke_spread.parquet
+  report.py      figures and tables -> outputs/
+  diagnose.py    data-coverage diagnostics
+tests/           pytest
+legacy/          v1 script (kept for reference)
+```
 
-## Results
+## How to run
+```bash
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+python run.py              # fetch -> transform -> model -> report
+python -m src.diagnose     # check year x bank coverage
+pytest
+```
 
-The project analyzes:
-- Historical ROE
-- Cost of equity
-- Economic spread (ROE − Ke)
-- Cross-bank and time-series comparisons
+## Roadmap
+- [x] Repository restructure, Parquet layers, tests
+- [x] Fix: net income double counting; Ke from realized index returns
+- [ ] Fix: Bradesco/BB/Santander data gap after 2019 (diagnose with `src.diagnose`)
+- [ ] Sourced Ke (NTN-B / Damodaran), beta comparison
+- [ ] Excess Return valuation, value per share, upside/downside
+- [ ] Justified vs. market P/B, scenarios, Ke × g sensitivity
+- [ ] DuPont ROE decomposition (IF.data)
 
-## Important Notes
-
-- This project does not estimate fair value or target price
-- The focus is on economic value creation
-- Academic and educational purpose
-
-## Next Steps
-
-- Estimate intrinsic value using residual income growth models
-- Analyze ROE persistence
-- Incorporate macroeconomic scenarios
+## Limitations
+Bank betas are unstable (state ownership at BB, Bradesco's 2023 downturn); valuation is highly sensitive to Ke − g; COSIF vs. IFRS and recurring vs. reported ROE differences.
